@@ -1,0 +1,263 @@
+{% extends "master.html" %}
+{% block Title %} {{ series.id }} {% endblock %}
+
+{% block css %}
+<style>
+    .container-fluid.mt-4 {
+        padding: 0;
+        margin-top: 0 !important;
+    }
+
+    .container-fluid.mt-4 > * {
+        padding-inline: 2%;
+    }
+
+    .container-fluid.mt-4 .thumbnail-container {
+        padding: 0;
+    }
+
+    .thumbnail-container {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .thumbnail {
+        width: 100%;
+        height: auto;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 70%;
+        height: 100%;
+        background: linear-gradient(90deg, #181818 10%, hsla(0, 0%, 9%, .98) 20%, hsla(0, 0%, 9%, .97) 25%, hsla(0, 0%, 9%, .95) 35%, hsla(0, 0%, 9%, .94) 40%, hsla(0, 0%, 9%, .92) 45%, hsla(0, 0%, 9%, .9) 50%, hsla(0, 0%, 9%, .87) 55%, hsla(0, 0%, 9%, .82) 60%, hsla(0, 0%, 9%, .75) 65%, hsla(0, 0%, 9%, .63) 70%, hsla(0, 0%, 9%, .45) 75%, hsla(0, 0%, 9%, .27) 80%, hsla(0, 0%, 9%, .15) 85%, hsla(0, 0%, 9%, .08) 90%, hsla(0, 0%, 9%, .03) 95%, hsla(0, 0%, 9%, 0));
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .season-list {
+        margin-top: 20px;
+    }
+
+    .season {
+        margin-bottom: 40px;
+    }
+
+    .gallery-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .gallery {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+        will-change: transform;
+    }
+
+    .gallery-item {
+        position: relative;
+        flex: 0 0 calc(25% - 10px);
+        box-sizing: border-box;
+        margin-right: 10px;
+    }
+
+    .gallery-item img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .episode-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        font-size: 1rem;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .episode-number {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 10px;
+        font-size: 1rem;
+        border-radius: 50%;
+    }
+
+    .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .arrow-left {
+        left: 10px;
+    }
+
+    .arrow-right {
+        right: 10px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .overlay {
+            width: 100%;
+            padding: 15px;
+        }
+
+        .info-content {
+            width: 40%;
+        }
+
+        .gallery-item {
+            flex: 0 0 calc(50% - 10px);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .overlay {
+            padding: 10px;
+        }
+
+        .info-content h1 {
+            font-size: 1.5rem;
+        }
+
+        .info-content p {
+            font-size: 1rem;
+        }
+
+        .gallery-item {
+            flex: 0 0 100%;
+        }
+    }
+
+    .info-content {
+        width: 40%;
+    }
+
+    .season-display {
+        margin-bottom: 50px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- TV Series Thumbnail with Overlay -->
+    <div class="thumbnail-container position-relative">
+        <img src="{{ series.thumbnail }}" alt="{{ series.title }}" class="thumbnail img-fluid">
+        <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-flex">
+            <div class="info-content text-white p-4">
+                <h1>{{ series.title }}</h1>
+                <p class="lead">{{ series.release_date|date:"Y-m-d" }} | {{ series.seasons }} seasons | {{ series.genre }}</p>
+                <p class="lead">{{ series.description }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Seasons List -->
+    <div class="season-list mt-4">
+        {% for season in seasons %}
+        <div class="season mb-4">
+            <h4 class = "season-display">Season {{ season.number }} | {{ season.episodes }} episodes</h4>
+            <!-- Episode Gallery Section -->
+            <div class="gallery-container">
+                <button class="arrow arrow-left" onclick="scrollGallery(this, -1)">&#8249;</button>
+                <div class="gallery">
+                    {% for episode in season.episode_list.all %}
+                    <div class="gallery-item">
+                        <a href="{% url 'watch' episode.id %}">
+                            <img src="{{ season.thumbnail }}" alt="Episode Thumbnail">
+                            <div class="episode-number">{{ episode.number }}</div>
+                            <div class="play-icon"><i class="fas fa-play-circle"></i></div>
+                            <div class="episode-title">{{ episode.title }}</div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p>No episodes available for this season.</p>
+                    {% endfor %}
+                </div>
+                <button class="arrow arrow-right" onclick="scrollGallery(this, 1)">&#8250;</button>
+            </div>
+        </div>
+        {% empty %}
+        <p>No seasons available for this series.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const galleries = document.querySelectorAll('.gallery');
+
+        galleries.forEach(gallery => {
+            const galleryItems = gallery.querySelectorAll('.gallery-item');
+            const itemsPerView = 4; // Number of items to show per view
+            let currentIndex = 0;
+
+            function updateGalleryPosition() {
+                const itemWidth = galleryItems[0].offsetWidth + 10; // Include margin
+                gallery.style.transform = `translateX(${-currentIndex * itemWidth}px)`;
+            }
+
+            gallery.closest('.gallery-container').querySelector('.arrow-left').addEventListener('click', function () {
+                currentIndex = Math.max(currentIndex - 1, 0);
+                updateGalleryPosition();
+            });
+
+            gallery.closest('.gallery-container').querySelector('.arrow-right').addEventListener('click', function () {
+                currentIndex = Math.min(currentIndex + 1, galleryItems.length - itemsPerView);
+                updateGalleryPosition();
+            });
+
+            // Disable arrows if not enough items to scroll
+            const arrowLeft = gallery.closest('.gallery-container').querySelector('.arrow-left');
+            const arrowRight = gallery.closest('.gallery-container').querySelector('.arrow-right');
+
+            if (galleryItems.length <= itemsPerView) {
+                arrowLeft.style.display = 'none';
+                arrowRight.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

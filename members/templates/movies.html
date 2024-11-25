@@ -1,0 +1,157 @@
+{% extends "master.html" %}
+
+{% block title %}Movies{% endblock %}
+
+{% block css %}
+<style>
+    @media (min-width: 768px) {
+        .col-md-3 {
+            max-width: 24%;
+            flex: 0 0 24%;
+        }
+    }
+
+    .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn {
+        margin-top: auto;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-img-top {
+        width: 100%;
+        height: auto;
+    }
+
+    .card img {
+        background-size: contain;
+    }
+
+    /* Styling for genre checkboxes */
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .checkbox-group .form-check {
+        width: 24%;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="GET" action="{% url 'movies' %}">
+                <div class="input-group mb-3">
+                    <input type="text" name="q" class="form-control" placeholder="Search movies..." value="{{ query }}">
+                </div>
+                <div class="mb-3">
+                    <div class="checkbox-group">
+                        {% for genre in genres %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="genres" value="{{ genre.id }}" id="genre_{{ genre.id }}" {% if genre.id in selected_genres %}checked{% endif %}>
+                            <label class="form-check-label" for="genre_{{ genre.id }}">
+                                {{ genre.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Movie Cards -->
+    <div class="row">
+        {% for movie in page_obj %}
+        <div class="col-md-3 mb-2">
+            <div class="card animate__animated animate__zoomIn">
+                <a href="{% url 'player' movie.id %}">
+                    <img src="{{ movie.image_src }}" class="card-img-top" alt="{{ movie.title }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text">{{ movie.description }}</p>
+                    <a href="{% url 'player' movie.id %}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_genres %}&genres={{ selected_genres|join:"," }}{% endif %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_genres %}&genres={{ selected_genres|join:"," }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if selected_genres %}&genres={{ selected_genres|join:"," }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_genres %}&genres={{ selected_genres|join:"," }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_genres %}&genres={{ selected_genres|join:"," }}{% endif %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

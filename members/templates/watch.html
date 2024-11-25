@@ -1,0 +1,301 @@
+{% extends "master.html" %}
+{% block Title %} {{ series.title }} {{season.number}} episode {{episode.number}} {% endblock %}
+{% block css %}
+    <style>
+        .season-list,
+        .episode-list {
+            margin-top: 20px;
+        }
+
+        .episode-list {
+            margin-bottom: 0px;
+        }
+
+        .info-content {
+            padding: 20px;
+        }
+
+        .season {
+            margin-bottom: 40px;
+        }
+
+        .trailer,
+        .episode-list-container {
+            margin-top: 20px;
+        }
+
+        .video-section {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap; /* Make the layout flexible */
+        }
+
+        .trailer {
+            width: 100%;
+            flex: 0 0 60%;
+            margin-right: 0px;
+        }
+
+        .episode-list-container {
+            flex: 0 0 35%;
+            max-height: 400px;
+            width: 100%;
+            overflow-y: hidden;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #000;
+            color: #fff;
+            position: relative;
+            margin-top: 20px; /* Add margin to separate on mobile */
+        }
+
+        .episode-list-container h5 {
+            border-bottom: 2px solid #fff;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .episode-list-container ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .episode-item {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+        }
+
+        .episode-item:last-child {
+            border-bottom: none;
+        }
+
+        .episode-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .episode-info {
+            flex: 1;
+        }
+
+        .episode-title {
+            font-weight: bold;
+        }
+
+        .episode-duration {
+            color: #bbb;
+        }
+
+        /* Hide scrollbar for Chrome, Safari, and Opera */
+        .episode-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .episode-list-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .episode-list-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Hide scrollbar for IE, Edge, and Firefox */
+        .episode-list-container {
+            -ms-overflow-style: none;
+            scrollbar-width: thin;
+        }
+
+        @media (max-width: 768px) {
+            .overlay {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .video-section {
+                flex-direction: column; /* Stack trailer and episodes vertically */
+            }
+
+            .trailer,
+            .episode-list-container {
+                flex: 0 0 100%;
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .overlay {
+                padding: 10px;
+            }
+
+            .info-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .info-content p {
+                font-size: 1rem;
+            }
+
+            .episode-thumbnail {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+            }
+
+            .episode-title {
+                font-size: 0.9rem;
+            }
+
+            .episode-duration {
+                font-size: 0.8rem;
+            }
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .popup-content p {
+            margin-bottom: 20px;
+        }
+
+        .popup-content button {
+            margin: 0 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid mt-4">
+        <!-- Seasons List -->
+        <div class="season-list mt-4">
+            <div class="season">
+                <div class="video-section">
+                    <!-- Trailer Video Section -->
+                    <div class="trailer embed-responsive embed-responsive-16by9">
+                        <video id="my-video" class="embed-responsive-item video-js vjs-default-skin" controls preload="auto" width="100%" height="100%" data-setup='{}'>
+                            <source src="{{episode.source}}" type="video/mp4">
+                            <track src="{% url 'file_proxy' %}?url={{ episode.subtitle|urlencode }}" kind="subtitles" srclang="vi" label="Vietnamese">
+                        </video>
+                    </div>
+                    <!-- Episode List Section -->
+                    <div class="episode-list-container">
+                        <h5>Episodes</h5>
+                        <ul class="episode-list list-unstyled">
+                            {% for episode in season.episode_list.all %}
+                            <li class="episode-item d-flex mb-2">
+                                <a href="{% url 'watch' episode.id %}" class="d-flex text-decoration-none text-white">
+                                    <img src="{{ season.thumbnail }}" alt="Episode Thumbnail" class="episode-thumbnail me-3">
+                                    <div class="episode-info">
+                                        <div class="episode-title">Episode {{ episode.number }}: {{ episode.title }}</div>
+                                        <div class="episode-duration">Duration: {{ episode.duration }} min</div>
+                                    </div>
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li>No episodes available for this season.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-content text-black p-4 mt-4">
+        <h1>{{ series.title }} {{season.number}} episode {{episode.number}}</h1>
+        <p>{{ episode.description }}</p>
+    </div>
+
+    <div id="continue-watching-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <p>Do you want to continue watching from where you left off?</p>
+            <button id="continue-watching-yes" class="btn btn-primary">Yes</button>
+            <button id="continue-watching-no" class="btn btn-secondary">No</button>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+<script>
+    window.onload = function() {
+        var player = videojs('my-video');
+        var episodeId = "{{ episode.id }}"; // Get the current episode ID
+
+        // Save the current time periodically for this specific episode
+        player.on('timeupdate', function() {
+            var currentTime = player.currentTime();
+            localStorage.setItem('lastWatchedTime_' + episodeId, currentTime); // Save with episode-specific key
+        });
+
+        // Show a custom pop-up when the user returns to this episode
+        var lastWatchedTime = localStorage.getItem('lastWatchedTime_' + episodeId);
+        if (lastWatchedTime && lastWatchedTime > 0) {
+            document.getElementById('continue-watching-popup').style.display = 'flex';
+
+            document.getElementById('continue-watching-yes').onclick = function() {
+                player.currentTime(lastWatchedTime);
+                document.getElementById('continue-watching-popup').style.display = 'none';
+            };
+
+            document.getElementById('continue-watching-no').onclick = function() {
+                document.getElementById('continue-watching-popup').style.display = 'none';
+            };
+        }
+    };
+</script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.querySelector('.episode-list-container');
+
+            let timeout;
+
+            function showScrollbar() {
+                container.style.overflowY = 'scroll';
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    container.style.overflowY = 'hidden';
+                }, 2000); // Hide after 2 seconds of inactivity
+            }
+
+            container.addEventListener('scroll', showScrollbar);
+            container.addEventListener('mouseenter', showScrollbar);
+
+            // const episodeItems = document.querySelectorAll(".episode-item");
+            // episodeItems.forEach(episodeItem => {
+            //     console.log(episodeItem)
+            //     episodeItem.addEventListener("click", e => {
+            //         console.log(e.target)
+            //     })
+            // })
+        });
+    </script>
+{% endblock %}

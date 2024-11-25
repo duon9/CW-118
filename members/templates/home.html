@@ -1,0 +1,111 @@
+{% extends "master.html" %}
+{% block Title %} A place for film {% endblock %}
+
+
+{% block css %}
+<style>
+    @media (min-width: 768px) {
+        .col-md-3 {
+            max-width: 24%;
+            flex: 0 0 24%;
+        }
+    }
+
+    .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: 1rem; /* Reduced font size */
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-img-top {
+        transition: filter 0.3s;
+    }
+
+    .card:hover .card-img-top {
+        filter: blur(0px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Jumbotron -->
+<div class="jumbotron jumbotron-fluid animate__animated animate__fadeIn">
+    <div class="container">
+        <h1 class="display-4">Welcome to Movee</h1>
+        <p class="lead">Your ultimate destination for the latest and greatest films.</p>
+        <hr class="my-4">
+        <p>Explore our collection of featured films and discover your next favorite movie.</p>
+        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+    </div>
+</div>
+
+<!-- Featured Films Section -->
+<div class="container">
+    <h2 class="text-center mb-4">Featured Films</h2>
+    <div class="row">
+        <div class="col-md-4 animate__animated animate__zoomIn">
+            <div class="card">
+                <img src="{{movies.0.image_src}}" class="card-img-top" alt="Film 1">
+                <div class="card-body">
+                    <h5 class="card-title">{{movies.0.title}}</h5>
+                    <p class="card-text">{{movies.0.description}}</p>
+                    <a href="player/{{ movies.0.id }}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 animate__animated animate__zoomIn animate__delay-1s">
+            <div class="card">
+                <img src="{{movies.1.image_src}}" class="card-img-top" alt="Film 2">
+                <div class="card-body">
+                    <h5 class="card-title">{{movies.1.title}}</h5>
+                    <p class="card-text">{{movies.1.description}}</p>
+                    <a href="player/{{ movies.1.id }}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 animate__animated animate__zoomIn animate__delay-2s">
+            <div class="card">
+                <img src="{{movies.2.image_src}}" class="card-img-top" alt="Film 3">
+                <div class="card-body">
+                    <h5 class="card-title">{{movies.2.title}}</h5>
+                    <p class="card-text">{{movies.2.description}}</p>
+                    <a href="player/{{ movies.2.id }}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+          

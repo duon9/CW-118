@@ -1,0 +1,70 @@
+{% extends "master.html" %}
+
+{% block title %} {{ member.username }} {% endblock %}
+
+{% block css %}
+<style>
+    .avatar2 {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .profile-container {
+        max-width: 600px;
+        margin: 30px auto;
+    }
+    .form-group-inline {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    .form-group-inline .form-control {
+        flex: 1;
+        max-width: 60%;
+    }
+    .form-group-inline button {
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="card shadow-sm">
+        <div class="card-header text-center bg-primary text-white">
+            <h4>{{ member.username }}'s Profile</h4>
+        </div>
+        <div class="card-body">
+            <!-- Display the avatar -->
+            <div class="text-center">
+                <img src="{{ avatar_url }}" alt="{{ member.username }}'s avatar" class="avatar2 mb-3">
+            </div>
+
+            <!-- Form to change the avatar -->
+            <form method="POST" enctype="multipart/form-data" action="{% url 'change_avatar' %}">
+                {% csrf_token %}
+                <div class="form-group-inline">
+                    <input type="file" name="avatar" accept="image/*" class="form-control" id="avatar">
+                    <button type="submit" class="btn btn-primary">Update Avatar</button>
+                </div>
+            </form>
+
+            <hr>
+
+            <!-- Member Details -->
+            <h5 class="mt-3"><strong>{{ member.firstname }} {{ member.lastname }}</strong></h5>
+            <p><strong>Username:</strong> {{ member.username }}</p>
+            <p><strong>Email:</strong> {{ member.email }}</p>
+            <p><strong>Phone:</strong> {{ member.phone }}</p>
+        </div>
+        <div class="card-footer text-center text-muted">
+            Member since: {{ member.date_joined|date:"F j, Y" }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{% endblock %}

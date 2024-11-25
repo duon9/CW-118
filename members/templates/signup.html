@@ -1,0 +1,71 @@
+{% extends "master.html" %}
+{% block Title %} Signup {% endblock %}
+
+    {% block css %}
+    <style>
+        .form-container {
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        footer {
+            width: 100vw;
+        }
+    </style>
+    {% endblock %}
+
+
+
+<!-- {% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %} -->
+
+{% block content %}
+<div class="form-container">
+    <!-- Signup Form -->
+    <div id="signupForm" class="card p-4">
+        <h3 class="text-center">Sign Up</h3>
+        <form method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password1" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password1" name="password1" required>
+            </div>
+            <div class="mb-3">
+                <label for="password2" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="password2" name="password2" required>
+            </div>
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="firstname" name="firstname" required>
+            </div>
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="lastname" name="lastname" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="phone" name="phone" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{% url 'signin' %}">Already have an account? Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

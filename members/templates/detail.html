@@ -1,0 +1,21 @@
+{% extends "master.html" %}
+
+{% block title %}
+  Details about {{ mymember.firstname }} {{ mymember.lastname }}
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card animate__animated animate__zoomIn">
+      <div class="card-body">
+        <h1 class="card-title">{{ mymember.firstname }} {{ mymember.lastname }}</h1>
+        
+        <p class="card-text"><strong>Username:</strong> {{ mymember.username }}</p>
+        <p class="card-text"><strong>Phone:</strong> {{ mymember.phone }}</p>
+        <p class="card-text"><strong>Email:</strong> {{ mymember.email }}</p>
+        <p class="card-text"><strong>Password:</strong>{{mymember.password}}</p>
+        <a href="/members" class="btn btn-primary">Back to Members</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

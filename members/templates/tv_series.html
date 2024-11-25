@@ -1,0 +1,128 @@
+{% extends "master.html" %}
+
+{% block title %}TV series{% endblock %}
+
+{% block css %}
+<style>
+    @media (min-width: 768px) {
+        .col-md-3 {
+            max-width: 24%;
+            flex: 0 0 24%;
+        }
+    }
+
+    .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: 1rem; /* Reduced font size */
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn {
+        margin-top: auto;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-img-top {
+        width: 100%; /* Ensure the image takes up full width */
+        height: auto; /* Maintain aspect ratio */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="GET">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search movies..." value="{{ request.GET.q }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Movie Cards -->
+    <div class="row">
+        {% for ts in page_obj %}
+        <div class="col-md-3 mb-2"> <!-- Reduced margin-bottom to mb-2 -->
+            <div class="card animate__animated animate__zoomIn">
+                <img src="{{ ts.thumbnail }}" class="card-img-top" alt="{{ ts.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ ts.title }}</h5>
+                    <p class="card-text">{{ ts.description }}</p>
+                    <a href="/tvseries/{{ts.id}}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

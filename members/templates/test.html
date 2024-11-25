@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Video Player with hls.js</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        video { width: 100%; max-width: 640px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>HLS Video Player</h1>
+    <video id="video" controls></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        var video = document.getElementById('video');
+        var videoSrc = 'https://vip.opstream16.com/20220512/12138_b60f32f1/1000k/hls/mixed.m3u8'; // Local proxy URL
+
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                video.play();
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function () {
+                video.play();
+            });
+        } else {
+            console.error('HLS is not supported in this browser.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet">
+
+    <style>
+        .alert-overlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .navbar {
+            position: sticky;
+        }
+
+        body {
+            position: relative;
+        }
+
+        .avatar {
+            margin-left: 10%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+    {% block css %}
+    {% endblock %}
+
+    {% block js %}
+    {% endblock %}
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light animate__animated animate__fadeInDownBig">
+    <a class="navbar-brand" href="/">Movee</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/tvseries">Series</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/movies">Movies</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Contact</a>
+            </li>
+            {% if is_authenticated == False %}
+            <li class="nav-item">
+                <a class="btn btn-outline-primary" href="{% url 'signin' %}?next={{request.path}}">Login</a>
+            </li>
+            {% else %}
+            <a href="{% url 'profile' %}">
+                <img src="{{ avatar_url }}" alt="Avatar" class="avatar">
+            </a>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<!-- Alerts -->
+{% if messages %}
+    <div class="alert-overlay">
+        {% for message in messages %}
+        {% if message.tags == "error"%}
+        <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% else %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer class="bg-light text-center text-lg-start mt-5 animate__animated animate__fadeInUp">
+    <div class="container p-4">
+        <div class="row">
+            <div class="col-lg-6 col-md-12 mb-4 mb-md-0 animate__animated animate__fadeInLeft">
+                <h5 class="text-uppercase">Movee</h5>
+                <p>Explore the latest films and enjoy the best movie experience.</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0 animate__animated animate__fadeInRight">
+                <h5 class="text-uppercase">Links</h5>
+                <ul class="list-unstyled mb-0">
+                    <li><a href="#" class="text-dark">About</a></li>
+                    <li><a href="#" class="text-dark">Films</a></li>
+                    <li><a href="#" class="text-dark">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0 animate__animated animate__fadeInRight animate__delay-1s">
+                <h5 class="text-uppercase">Follow Us</h5>
+                <ul class="list-unstyled mb-0">
+                    <li><a href="https://www.facebook.com/ndd.305/" class="text-dark"><i class="fab fa-facebook"></i> Facebook</a></li>
+                    <li><a href="https://www.instagram.com/nguyen.duc_duong/" class="text-dark"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li><a href="https://www.instagram.com/nguyen.duc_duong/" class="text-dark"><i class="fab fa-instagram"></i> Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2024 Movee. All rights reserved.
+    </div>
+</footer>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://vjs.zencdn.net/7.11.4/video.min.js"></script>
+<script>
+    $(document).ready(function(){
+        setTimeout(function() {
+            $('.alert').alert('close');
+        }, 10000000);
+    });
+</script>
+</body>
+</html>

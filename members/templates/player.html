@@ -1,0 +1,93 @@
+{% extends "master.html" %}
+{% block Title %} {{ movie.title }} {% endblock %}
+
+{% block css %}
+
+<style>
+.player {
+    position: relative;
+}
+</style>
+
+{% endblock%}
+
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Player Section -->
+        <div class="col-lg-8 col-md-12">
+            <div id = "video2" class="player embed-responsive embed-responsive-16by9">
+                <video id="real-video" class="embed-responsive-item video-js vjs-default-skin" controls preload="auto" data-setup="{}">
+                    <source src="{{ movie.source }}" type="video/mp4">
+                    <track src="{% url 'file_proxy' %}?url={{ movie.subtitle|urlencode }}" kind="subtitles" srclang="vi" label="Vietnamese">
+                </video>
+            </div>
+            <div id="video1" class="player embed-responsive embed-responsive-16by9">
+                <iframe id="iframe-video" src="{{ movie.source1 }}" class="embed-responsive-item" allowfullscreen></iframe>
+            </div>
+            <h2 class="mt-4">{{ movie.title }}</h2>
+            <p class="lead">{{ movie.description }}</p>
+
+            <div class="button-container">
+                <button id="button-server1" class="button-server-change" aria-label="Switch to Server 1">Server 1</button>
+                <button id="button-server2" class="button-server-change" aria-label="Switch to Server 2">Server 2</button>
+            </div>
+        </div>
+        <!-- Suggested Movies Section -->
+        <div class="col-lg-4 col-md-12">
+            <h3>Suggested Movies</h3>
+            <div class="row">
+                {% for suggested_movie in suggested_movies %}
+                <div class="col-md-12 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ suggested_movie.image_src }}" class="card-img-top" alt="{{ suggested_movie.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ suggested_movie.title }}</h5>
+                            <p class="card-text">{{ suggested_movie.description|truncatewords:20 }}</p>
+                            <a href="{% url 'player' suggested_movie.id %}" class="btn btn-primary">Watch Now</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const server1_video = document.getElementById("video1");// parrent
+        const iframeVideo = document.getElementById("iframe-video")
+        const server2_video = document.getElementById("video2");
+        const video2 = document.getElementById("real-video")
+
+        const btn_server1 = document.getElementById("button-server1");
+        const btn_server2 = document.getElementById("button-server2");
+
+        btn_server1.addEventListener("click", () => {
+            console.log(123)
+            // server2_video.pause(); // Pause the other video
+            video2.pause()
+            server1_video.hidden = false
+            server1_video.appendChild(iframeVideo)
+            server2_video.style.display = "none";
+            server1_video.style.display = "block";
+        });
+
+        btn_server2.addEventListener("click", () => {
+            // server1_video.pause(); // Pause the other video
+            // server1_video.hidden = true
+            server1_video.removeChild(iframeVideo)
+            server1_video.muted = true
+            server1_video.style.display = "none";
+            server2_video.style.display = "block";
+        });
+
+        server2_video.style.display = "none";
+        server1_video.style.display = "block";
+    });
+</script>
+{% endblock %}
