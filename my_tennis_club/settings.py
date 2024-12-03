@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l%!)iwe3^3!$ygq=0l*smg_oqfhf@ya@y54pcvsiv56^q1q6s5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "45.11.97.211", "phimcu.store"]
 
 
 # Application definition
