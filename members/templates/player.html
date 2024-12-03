@@ -2,22 +2,65 @@
 {% block Title %} {{ movie.title }} {% endblock %}
 
 {% block css %}
-
 <style>
-.player {
-    position: relative;
-}
+    .player {
+        position: relative;
+    }
+    .button-container {
+        margin-top: 20px;
+    }
+    .button-server-change {
+        margin-right: 10px;
+    }
+    .movie-info {
+        margin-top: 20px;
+    }
+    .btn {
+        margin-right: 10px;
+    }
+    .comment-section {
+        margin-top: 30px;
+    }
+    .comment-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    .comment-item {
+        margin-bottom: 15px;
+    }
+    .comment-item .comment-text {
+        font-size: 14px;
+    }
+    .comment-item .comment-author {
+        font-weight: bold;
+    }
+    .comment-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .comment-form button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .comment-form button:hover {
+        background-color: #0056b3;
+    }
 </style>
-
-{% endblock%}
-
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="row">
         <!-- Player Section -->
         <div class="col-lg-8 col-md-12">
-            <div id = "video2" class="player embed-responsive embed-responsive-16by9">
+            <div id="video2" class="player embed-responsive embed-responsive-16by9">
                 <video id="real-video" class="embed-responsive-item video-js vjs-default-skin" controls preload="auto" data-setup="{}">
                     <source src="{{ movie.source }}" type="video/mp4">
                     <track src="{% url 'file_proxy' %}?url={{ movie.subtitle|urlencode }}" kind="subtitles" srclang="vi" label="Vietnamese">
@@ -33,7 +76,42 @@
                 <button id="button-server1" class="button-server-change" aria-label="Switch to Server 1">Server 1</button>
                 <button id="button-server2" class="button-server-change" aria-label="Switch to Server 2">Server 2</button>
             </div>
+
+            <!-- Movie Interaction Section -->
+            <div class="movie-info">
+                <!-- Like Button -->
+                <button id="like-button" class="btn btn-danger">
+                    Like <span id="like-count">0</span>
+                </button>
+
+                <!-- Bookmark Button -->
+                <button id="bookmark-button" class="btn btn-info">
+                    Bookmark
+                </button>
+
+                <!-- View Count -->
+                <p><strong>Views:</strong> <span id="view-count">0</span></p>
+
+                <div class="comment-section">
+                    <h3>Comments</h3>
+                    <ul class="comment-list" id="comment-list">
+                        {% for comment in comments %}
+                        <li class="comment-item">
+                            <p class="comment-author">{{ comment.author }}</p>
+                            <p class="comment-text">{{ comment.text }}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+            
+                    <!-- Comment Form -->
+                    <div class="comment-form">
+                        <textarea id="comment-text" placeholder="Add a comment..." rows="4"></textarea>
+                        <button id="submit-comment" class="btn">Submit Comment</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <!-- Suggested Movies Section -->
         <div class="col-lg-4 col-md-12">
             <h3>Suggested Movies</h3>
@@ -53,41 +131,97 @@
             </div>
         </div>
     </div>
+
+    <!-- Comment Section -->
+    {% comment %} <div class="comment-section">
+        <h3>Comments</h3>
+        <ul class="comment-list" id="comment-list">
+            {% for comment in comments %}
+            <li class="comment-item">
+                <p class="comment-author">{{ comment.author }}</p>
+                <p class="comment-text">{{ comment.text }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Comment Form -->
+        <div class="comment-form">
+            <textarea id="comment-text" placeholder="Add a comment..." rows="4"></textarea>
+            <button id="submit-comment" class="btn">Submit Comment</button>
+        </div>
+    </div> {% endcomment %}
 </div>
 {% endblock %}
 
 {% block js %}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const server1_video = document.getElementById("video1");// parrent
-        const iframeVideo = document.getElementById("iframe-video")
+        const server1_video = document.getElementById("video1");
+        const iframeVideo = document.getElementById("iframe-video");
         const server2_video = document.getElementById("video2");
-        const video2 = document.getElementById("real-video")
+        const video2 = document.getElementById("real-video");
 
         const btn_server1 = document.getElementById("button-server1");
         const btn_server2 = document.getElementById("button-server2");
 
+        // View Count
+        let viewCount = 0;
+        document.getElementById("view-count").textContent = viewCount;
+
+        // Like Count
+        let likeCount = 0;
+        const likeButton = document.getElementById("like-button");
+        const likeCountElement = document.getElementById("like-count");
+
+        likeButton.addEventListener("click", () => {
+            likeCount++;
+            likeCountElement.textContent = likeCount;
+        });
+
+        // Bookmark Button
+        const bookmarkButton = document.getElementById("bookmark-button");
+
+        bookmarkButton.addEventListener("click", () => {
+            // Toggle bookmark state (can implement local storage or backend functionality here)
+            alert("Movie bookmarked!");
+        });
+
+        // Switch between video servers
         btn_server1.addEventListener("click", () => {
-            console.log(123)
-            // server2_video.pause(); // Pause the other video
-            video2.pause()
-            server1_video.hidden = false
-            server1_video.appendChild(iframeVideo)
+            video2.pause();
+            server1_video.hidden = false;
+            server1_video.appendChild(iframeVideo);
             server2_video.style.display = "none";
             server1_video.style.display = "block";
         });
 
         btn_server2.addEventListener("click", () => {
-            // server1_video.pause(); // Pause the other video
-            // server1_video.hidden = true
-            server1_video.removeChild(iframeVideo)
-            server1_video.muted = true
+            server1_video.removeChild(iframeVideo);
+            server1_video.muted = true;
             server1_video.style.display = "none";
             server2_video.style.display = "block";
         });
 
         server2_video.style.display = "none";
         server1_video.style.display = "block";
+
+        // Handle comment submission
+        const commentText = document.getElementById("comment-text");
+        const commentList = document.getElementById("comment-list");
+
+        document.getElementById("submit-comment").addEventListener("click", () => {
+            const text = commentText.value.trim();
+            if (text) {
+                const newComment = document.createElement("li");
+                newComment.classList.add("comment-item");
+                newComment.innerHTML = `
+                    <p class="comment-author">Anonymous</p>
+                    <p class="comment-text">${text}</p>
+                `;
+                commentList.appendChild(newComment);
+                commentText.value = ""; // Clear the textarea
+            }
+        });
     });
 </script>
 {% endblock %}

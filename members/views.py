@@ -15,6 +15,9 @@ import os
 import internetarchive
 from django.conf import settings
 from urllib.parse import urlparse
+import redis
+from django.core.cache import cache
+
 
 
 # Create your views here.
@@ -27,10 +30,16 @@ def members(request):
    return HttpResponse(template.render(context, request))
 
 def home(request):
-    mymovies = Movie.objects.all().order_by('-id')[:3].values()
+    mymovies = cache.get('home_movies')
+    
+    if not mymovies:
+        mymovies = Movie.objects.all().order_by('-id')[:12].values()
+        
+        cache.set('home_movies', mymovies, timeout=60)
+    
     template = loader.get_template("home.html")
     context = {
-        'movies' : mymovies
+        'movies': mymovies
     }
     return HttpResponse(template.render(context, request))
 
@@ -139,31 +148,29 @@ def watch(request, id):
     return HttpResponse(template.render(context, request))
 
 def signin(request):
-   next_url = request.GET.get('next')
-   if (request.GET.get('next') != None):
-         next_url = request.GET.get('next')
-         print(next_url)
-   else:
-         print("home")
-         next_url = 'home'
+    next_url = request.GET.get('next')
+    if not next_url:
+        next_url = 'home'
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-   if request.method == 'POST':
-      username = request.POST.get('username')
-      password = request.POST.get('password')
-
-      try:
-         member = Member.objects.get(username=username)
-         if member.check_password(password):
-               # Log the user in
-               request.session['member_id'] = member.id
-               messages.success(request, 'Login successful!')
-               return redirect(next_url)
-         else:
-               messages.error(request, 'Invalid username or password.')
-      except Member.DoesNotExist:
-         messages.error(request, 'Invalid username or password.')
-
-   return render(request, 'signin.html', {'next': next_url})
+        try:
+            member = Member.objects.get(username=username)
+            if member.check_password(password):
+                # Log the user in
+                request.session['member_id'] = member.id
+                # You can cache the member object in Redis (optional)
+                cache.set(f'user_{member.id}', member, timeout=3600)  # Cache for 1 hour
+                messages.success(request, 'Login successful!')
+                return redirect(next_url)
+            else:
+                messages.error(request, 'Invalid username or password.')
+        except Member.DoesNotExist:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'signin.html', {'next': next_url})
 
 
 def signup(request):
@@ -311,4 +318,22 @@ def test(request):
 
     }
 
+    return HttpResponse(template.render(context, request))
+
+def movie_view_counter(request, id):
+    # Increase the view counter in Redis for a specific movie
+    redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+    key = f'movie_{id}_view_count'
+    
+    # Increment the view counter
+    view_count = redis_client.incr(key)
+    
+    # Get movie details
+    mymovie = get_object_or_404(Movie, id=id)
+    
+    template = loader.get_template("player.html")
+    context = {
+        "movie": mymovie,
+        "view_count": view_count
+    }
     return HttpResponse(template.render(context, request))
