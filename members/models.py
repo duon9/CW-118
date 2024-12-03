@@ -88,26 +88,45 @@ class Episode(models.Model):
     source = models.TextField(blank = True)
     subtitle = models.TextField(blank= True)
 
-    # def fetch_duration_from_source(self):
-    #     # Check if the source URL is provided
-    #     if not self.source:
-    #         return None
-
-    #     try:
-    #         # Fetch the video file
-    #         response = requests.get(self.source, stream=True)
-    #         if response.status_code == 200:
-    #             # Use ffmpeg to probe the video duration
-    #             probe = ffmpeg.probe(self.source)
-    #             duration = probe['format']['duration']
-    #             return int(float(duration) / 60)  # Convert seconds to minutes
-    #     except Exception as e:
-    #         print(f"Error fetching duration: {e}")
-        
-    #     return None
-
     def __str__(self):
         return f"{self.season.series.title} - Season {self.season.number}, Episode {self.number}"
+    
+class Bookmark(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="bookmarks")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="bookmarked_by", null=True, blank=True)
+    tv_series = models.ForeignKey(TVSeries, on_delete=models.CASCADE, related_name="bookmarked_by", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('member', 'movie', 'tv_series')  # Ensure one bookmark per member per movie/TV series
+
+    def __str__(self):
+        return f"Bookmark of {self.member} on {self.movie or self.tv_series}"
+
+class Like(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="likes")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="liked_by", null=True, blank=True)
+    tv_series = models.ForeignKey(TVSeries, on_delete=models.CASCADE, related_name="liked_by", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('member', 'movie', 'tv_series')  # Ensure one like per member per movie/TV series
+
+    def __str__(self):
+        return f"Like by {self.member} on {self.movie or self.tv_series}"
+
+class View(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="views")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="viewed_by", null=True, blank=True)
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name="viewed_by", null=True, blank=True)
+    view_time = models.DateTimeField(auto_now_add=True)
+    duration = models.PositiveIntegerField(help_text="Duration in minutes", null=True, blank=True)
+
+    class Meta:
+        unique_together = ('member', 'movie', 'episode')  # Ensure one view per member per movie/episode
+
+    def __str__(self):
+        return f"View by {self.member} on {self.movie or self.episode}"
     
 
 
