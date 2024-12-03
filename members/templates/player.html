@@ -131,25 +131,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Comment Section -->
-    {% comment %} <div class="comment-section">
-        <h3>Comments</h3>
-        <ul class="comment-list" id="comment-list">
-            {% for comment in comments %}
-            <li class="comment-item">
-                <p class="comment-author">{{ comment.author }}</p>
-                <p class="comment-text">{{ comment.text }}</p>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- Comment Form -->
-        <div class="comment-form">
-            <textarea id="comment-text" placeholder="Add a comment..." rows="4"></textarea>
-            <button id="submit-comment" class="btn">Submit Comment</button>
-        </div>
-    </div> {% endcomment %}
 </div>
 {% endblock %}
 

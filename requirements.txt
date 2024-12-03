@@ -1,2 +1,6 @@
 django
 whitenoise
+gunicorn
+ffmpeg
+internetarchive
+psycopg2
