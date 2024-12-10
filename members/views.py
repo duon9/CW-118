@@ -32,14 +32,20 @@ def members(request):
 def home(request):
     mymovies = cache.get('home_movies')
     
+    genres = Genre.objects.all()  # Fetch genres for the search box
+
+    featured = None
+
     if not mymovies:
         mymovies = Movie.objects.all().order_by('-id')[:12].values()
-        
+        featured = Movie.objects.order_by('?')[:8].values()
         cache.set('home_movies', mymovies, timeout=60)
     
     template = loader.get_template("home.html")
     context = {
-        'movies': mymovies
+        'movies': mymovies,
+        'random_movies': featured,
+        'genres': genres
     }
     return HttpResponse(template.render(context, request))
 

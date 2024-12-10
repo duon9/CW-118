@@ -3,38 +3,53 @@
 
 {% block css %}
 <style>
-    @media (min-width: 768px) {
-        .col-md-3 {
-            max-width: 24%;
-            flex: 0 0 24%;
+    @media (min-width: 1500px) {
+        .col-md-2 {
+            max-width: 25%; /* 100% / 6 = 16.66% width per film */
+            flex: 0 0 25%; /* Set the card width to approximately 1/6th of the row */
+            padding-left: 4px; /* Reduce space between columns */
+            padding-right: 4px;
         }
     }
 
     .card {
-        height: 100%;
+        height: auto;  /* Allow dynamic height */
         display: flex;
         flex-direction: column;
         transition: transform 0.3s, box-shadow 0.3s;
+        max-width: 100%; /* Ensure cards don't overflow */
+        margin: 6px 0;  /* Slightly increase margin for better spacing */
     }
 
     .card-body {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
+        padding: 12px;  /* Slightly increase padding inside the card */
     }
 
     .card-title {
-        font-size: 1rem; /* Reduced font size */
+        font-size: 1.2rem;  /* Slightly larger title font size */
         font-weight: bold;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
+        white-space: nowrap; /* Prevents the text from wrapping to the next line */
+        overflow: hidden; /* Hides the overflow text */
+        text-overflow: ellipsis; /* Adds "..." when the text overflows */
     }
 
     .card-text {
-        font-size: 0.9rem;
+        font-size: 0.9rem; /* Slightly larger font for the description */
         flex-grow: 1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        margin-bottom: 0.6rem; /* Add some space between description and button */
+    }
+
+    .card-img-top {
+        width: 100%; /* Ensure image fits within the card */
+        height: 180px; /* Slightly increase image height */
+        object-fit: cover; /* Ensure image retains aspect ratio */
     }
 
     .card {
@@ -42,8 +57,8 @@
     }
 
     .card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        transform: scale(1.08); /* Slightly increase scale effect on hover */
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.25); /* Enhance hover shadow effect */
     }
 
     .card-img-top {
@@ -53,7 +68,19 @@
     .card:hover .card-img-top {
         filter: blur(0px);
     }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust column width */
+        gap: 10px; /* Spacing between items */
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
 </style>
+
 {% endblock %}
 
 {% block content %}
@@ -64,16 +91,40 @@
         <p class="lead">Your ultimate destination for the latest and greatest films.</p>
         <hr class="my-4">
         <p>Explore our collection of featured films and discover your next favorite movie.</p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+        <button class="btn btn-primary btn-lg" id="openSearch" role="button">Search Movies</button>
     </div>
 </div>
 
-<!-- Featured Films Section -->
-<div class="container">
-    <h2 class="text-center mb-4">Featured Films</h2>
+<!-- Hidden Search Box -->
+<div class="container mt-4" id="searchBox" style="display: none;">
+    <form method="GET" action="{% url 'movies' %}">
+        <div class="input-group mb-3">
+            <input type="text" name="q" class="form-control" placeholder="Search movies...">
+        </div>
+        <div class="mb-3">
+            <div class="checkbox-group">
+                {% for genre in genres %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="genres" value="{{ genre.id }}" id="genre_{{ genre.id }}">
+                    <label class="form-check-label" for="genre_{{ genre.id }}">
+                        {{ genre.name }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- Random Films Section -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">New Released Films</h2>
     <div class="row">
-        {% for movie in movies %}
-        <div class="col-md-4 animate__animated animate__zoomIn {% if forloop.counter > 1 %}animate__delay-{{ forloop.counter0 }}s{% endif %}">
+        {% for movie in random_movies %}
+        <div class="col-md-2 animate__animated animate__zoomIn {% if forloop.counter > 1 %}animate__delay-{{ forloop.counter0 }}s{% endif %}">
             <div class="card">
                 <img src="{{ movie.image_src }}" class="card-img-top" alt="{{ movie.title }}">
                 <div class="card-body">
@@ -86,4 +137,35 @@
         {% endfor %}
     </div>
 </div>
+
+
+<!-- Featured Films Section -->
+<div class="container">
+    <h2 class="text-center mb-4">Featured Films</h2>
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col-md-2 animate__animated animate__zoomIn {% if forloop.counter > 1 %}animate__delay-{{ forloop.counter0 }}s{% endif %}">
+            <div class="card">
+                <img src="{{ movie.image_src }}" class="card-img-top" alt="{{ movie.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text">{{ movie.description }}</p>
+                    <a href="player/{{ movie.id }}" class="btn btn-primary">Watch Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('openSearch').addEventListener('click', function () {
+        const searchBox = document.getElementById('searchBox');
+        if (searchBox.style.display === 'none') {
+            searchBox.style.display = 'block';
+        } else {
+            searchBox.style.display = 'none';
+        }
+    });
+</script>
 {% endblock %}
